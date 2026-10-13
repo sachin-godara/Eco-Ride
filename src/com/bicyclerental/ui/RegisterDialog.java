@@ -33,11 +33,11 @@ public class RegisterDialog extends JDialog {
     private void initUI() {
         JPanel header = new JPanel(new FlowLayout(FlowLayout.CENTER));
         header.setBackground(UITheme.BG_DARK);
-        header.setBorder(new EmptyBorder(15, 10, 5, 10));
+        header.setBorder(new EmptyBorder(18, 10, 8, 10));
 
         JLabel title = new JLabel("Join EcoRide Smart Mobility");
-        title.setFont(UITheme.SUBTITLE_FONT);
-        title.setForeground(UITheme.PRIMARY);
+        title.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        title.setForeground(Color.BLACK);
         header.add(title);
         add(header, BorderLayout.NORTH);
 
@@ -65,9 +65,9 @@ public class RegisterDialog extends JDialog {
         txtPassword = UITheme.createStyledPasswordField(15);
         formCard.add(txtPassword);
 
-        lblMsg = new JLabel("Starting wallet credit: ₹250.00");
-        lblMsg.setFont(new Font("Segoe UI", Font.ITALIC, 11));
-        lblMsg.setForeground(UITheme.TEXT_ACCENT);
+        lblMsg = new JLabel("Bonus: INR 250.00 complimentary welcome credit");
+        lblMsg.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        lblMsg.setForeground(Color.BLACK);
         formCard.add(lblMsg);
 
         add(formCard, BorderLayout.CENTER);
@@ -79,7 +79,7 @@ public class RegisterDialog extends JDialog {
         JButton btnCancel = UITheme.createSecondaryButton("Cancel");
         btnCancel.addActionListener(e -> dispose());
 
-        JButton btnSubmit = UITheme.createPrimaryButton("Register & Claim ₹250");
+        JButton btnSubmit = UITheme.createPrimaryButton("Register & Claim INR 250");
         btnSubmit.addActionListener(e -> handleRegister());
 
         footer.add(btnCancel);
@@ -90,7 +90,7 @@ public class RegisterDialog extends JDialog {
     private JLabel createLabel(String text) {
         JLabel l = new JLabel(text);
         l.setFont(UITheme.BODY_BOLD);
-        l.setForeground(UITheme.TEXT_LIGHT);
+        l.setForeground(Color.BLACK);
         return l;
     }
 
@@ -102,21 +102,21 @@ public class RegisterDialog extends JDialog {
         String pass = new String(txtPassword.getPassword()).trim();
 
         if (user.isEmpty() || name.isEmpty() || email.isEmpty() || phone.isEmpty() || pass.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "All fields are mandatory.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+            UITheme.showStyledMessage(this, "All fields are mandatory.", "Validation Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         if (!email.contains("@") || !email.contains(".")) {
-            JOptionPane.showMessageDialog(this, "Please enter a valid email address.", "Validation Error", JOptionPane.WARNING_MESSAGE);
+            UITheme.showStyledMessage(this, "Please enter a valid email address.", "Validation Error", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         boolean success = DataRepository.getInstance().registerUser(user, name, email, phone, "CUSTOMER");
         if (success) {
-            JOptionPane.showMessageDialog(this, "Account created successfully! ₹250 welcome bonus credited.", "Success", JOptionPane.INFORMATION_MESSAGE);
+            UITheme.showStyledMessage(this, "Account created successfully! INR 250 welcome bonus credited.", "Success", JOptionPane.INFORMATION_MESSAGE);
             dispose();
         } else {
-            JOptionPane.showMessageDialog(this, "Username already exists. Please pick another.", "Error", JOptionPane.ERROR_MESSAGE);
+            UITheme.showStyledMessage(this, "Username already exists. Please pick another.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

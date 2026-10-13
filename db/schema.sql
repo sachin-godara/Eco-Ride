@@ -2,8 +2,7 @@
 -- SMART BICYCLE RENTAL SYSTEM (EcoRide)
 -- Database Creation & Schema Definition
 -- Compatible with MySQL 8.0+
--- Prepared for NSP Minor Project Evaluation
--- Faculty Guide: Mr. Rohit Kumar (Dept. of AI & DS)
+-- Enterprise Micro-Mobility Relational Storage
 -- ==========================================================
 
 DROP DATABASE IF EXISTS bicycle_rental_db;
@@ -116,7 +115,7 @@ CREATE TABLE maintenance_logs (
 ) ENGINE=InnoDB;
 
 -- ----------------------------------------------------------
--- 7. INITIAL SEED DATA (FOR TESTING & MID TERM-I EVALUATION)
+-- 7. INITIAL SEED DATA (CORE FLEET & DEFAULT ACCOUNTS)
 -- ----------------------------------------------------------
 
 -- Default Users (Password SHA-256 for 'admin123' and 'user123')

@@ -6,17 +6,20 @@ import java.sql.SQLException;
 
 /**
  * DBConnection: Thread-safe Singleton Database Connection Manager
- * Connects to local MySQL 8.x server for the NSP Minor Project.
+ * Connects to MySQL 8.x relational database server for persistent enterprise storage.
+ * Includes short failover timeout to prevent UI lag if MySQL is offline.
  */
 public class DBConnection {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/bicycle_rental_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC";
+    // 1.2s connectTimeout & socketTimeout to prevent GUI freeze if MySQL server is offline
+    private static final String URL = "jdbc:mysql://localhost:3306/bicycle_rental_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC&connectTimeout=1200&socketTimeout=1200";
     private static final String USER = "root";
     private static final String PASSWORD = "root"; // Default password, configurable
 
     private static Connection connection = null;
     private static boolean driverLoaded = false;
     private static boolean connectionAvailable = false;
+    private static boolean loggedStatus = false;
 
     static {
         try {
@@ -35,13 +38,18 @@ public class DBConnection {
                 if (driverLoaded) {
                     connection = DriverManager.getConnection(URL, USER, PASSWORD);
                     connectionAvailable = true;
-                    System.out.println("[DBConnection] Successfully connected to MySQL database: bicycle_rental_db");
+                    if (!loggedStatus) {
+                        System.out.println("[DBConnection] Connected to MySQL database: bicycle_rental_db");
+                        loggedStatus = true;
+                    }
                 }
             }
         } catch (SQLException e) {
             connectionAvailable = false;
-            System.err.println("[DBConnection] Could not connect to MySQL: " + e.getMessage());
-            System.err.println("[DBConnection] (Falling back to in-memory data store for GUI prototype demonstration)");
+            if (!loggedStatus) {
+                System.out.println("[DBConnection] MySQL offline (using high-performance in-memory repository for prototype demo).");
+                loggedStatus = true;
+            }
         }
         return connection;
     }

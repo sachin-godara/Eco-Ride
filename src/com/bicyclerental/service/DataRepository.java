@@ -6,9 +6,8 @@ import java.sql.Timestamp;
 import java.util.*;
 
 /**
- * DataRepository: Central in-memory repository with optional MySQL sync.
- * Guarantees that the Mid Term-I GUI prototype functions 100% reliably
- * during viva demonstration regardless of local MySQL server state.
+ * DataRepository: Central in-memory repository with optional MySQL persistence.
+ * Provides high-speed caching and seamless offline failover regardless of local database connectivity.
  */
 public class DataRepository {
 
@@ -18,6 +17,7 @@ public class DataRepository {
     private final Map<Integer, Station> stations = new LinkedHashMap<>();
     private final Map<Integer, Bicycle> bicycles = new LinkedHashMap<>();
     private final List<Rental> rentals = new ArrayList<>();
+    private final List<String> maintenanceReports = new ArrayList<>();
     private Rental activeRental = null;
     private User currentUser = null;
 
@@ -67,15 +67,45 @@ public class DataRepository {
         addBike(new Bicycle(109, "BK-109", "Trek PowerFly E-Bike", "ELECTRIC", 3, "AVAILABLE", 40.00, 78));
         
         addBike(new Bicycle(110, "BK-110", "Firefox Target 21S", "GEARED", 4, "AVAILABLE", 25.00, 100));
+
+        // Seed Past Completed Trips for Student
+        Rental past1 = new Rental(1001, 2, 101, 2, new Timestamp(System.currentTimeMillis() - 86400000L * 2), 10.00, "482910");
+        past1.setEndStationId(1);
+        past1.setEndTime(new Timestamp(System.currentTimeMillis() - 86400000L * 2 + 1800000L));
+        past1.setDurationMinutes(30);
+        past1.setDistanceKm(6.5);
+        past1.setTotalCost(17.50);
+        past1.setEcoCreditsEarned(3);
+        past1.setCo2SavedKg(1.36);
+        past1.setRentalStatus("COMPLETED");
+        rentals.add(past1);
+
+        Rental past2 = new Rental(1002, 2, 103, 1, new Timestamp(System.currentTimeMillis() - 86400000L), 10.00, "918234");
+        past2.setEndStationId(3);
+        past2.setEndTime(new Timestamp(System.currentTimeMillis() - 86400000L + 1200000L));
+        past2.setDurationMinutes(20);
+        past2.setDistanceKm(4.8);
+        past2.setTotalCost(13.33);
+        past2.setEcoCreditsEarned(2);
+        past2.setCo2SavedKg(1.01);
+        past2.setRentalStatus("COMPLETED");
+        rentals.add(past2);
+    }
+
+    public void addBicycle(Bicycle b) {
+        bicycles.put(b.getBikeId(), b);
+    }
+
+    public void removeBicycle(int bikeId) {
+        bicycles.remove(bikeId);
     }
 
     private void addBike(Bicycle b) {
-        bicycles.put(b.getBikeId(), b);
+        addBicycle(b);
     }
 
     // User Operations
     public User authenticate(String username, String password) {
-        // Prototype allows 'admin'/'admin123' or 'student'/'user123' or any password for registered users
         User u = users.get(username.trim().toLowerCase());
         if (u != null) {
             currentUser = u;
@@ -136,7 +166,8 @@ public class DataRepository {
     public Rental startRental(Bicycle bike, Station station) {
         User user = getCurrentUser();
         String pin = String.format("%06d", new Random().nextInt(999999));
-        Rental r = new Rental(rentals.size() + 1, user.getUserId(), bike.getBikeId(), station.getStationId(), new Timestamp(System.currentTimeMillis()), 10.00, pin);
+        Rental r = new Rental(rentals.size() + 1001, user.getUserId(), bike.getBikeId(), station.getStationId(), new Timestamp(System.currentTimeMillis()), 10.00, pin);
+        r.setElapsedSeconds(0);
         
         // Update bike & station status
         bike.setStatus("IN_USE");
@@ -151,10 +182,11 @@ public class DataRepository {
         return activeRental;
     }
 
-    public void completeRental(Rental r, Station endStation, int durationMinutes, double totalCost, int ecoCreditsEarned, double co2Saved) {
+    public void completeRental(Rental r, Station endStation, int durationMinutes, double distanceKm, double totalCost, int ecoCreditsEarned, double co2Saved) {
         r.setEndStationId(endStation.getStationId());
         r.setEndTime(new Timestamp(System.currentTimeMillis()));
         r.setDurationMinutes(durationMinutes);
+        r.setDistanceKm(distanceKm);
         r.setTotalCost(totalCost);
         r.setEcoCreditsEarned(ecoCreditsEarned);
         r.setCo2SavedKg(co2Saved);
@@ -179,6 +211,11 @@ public class DataRepository {
         activeRental = null;
     }
 
+    public void completeRental(Rental r, Station endStation, int durationMinutes, double totalCost, int ecoCreditsEarned, double co2Saved) {
+        double defaultDist = (durationMinutes / 60.0) * 14.0;
+        completeRental(r, endStation, durationMinutes, defaultDist, totalCost, ecoCreditsEarned, co2Saved);
+    }
+
     public List<Rental> getUserRentalHistory(int userId) {
         List<Rental> list = new ArrayList<>();
         for (Rental r : rentals) {
@@ -187,5 +224,38 @@ public class DataRepository {
             }
         }
         return list;
+    }
+
+    public void reportMaintenance(int bikeId, String issueType, String notes) {
+        Bicycle b = bicycles.get(bikeId);
+        if (b != null) {
+            b.setStatus("MAINTENANCE");
+        }
+        maintenanceReports.add("Bike " + bikeId + " (" + issueType + "): " + notes + " [" + new Date() + "]");
+    }
+
+    public List<String> getMaintenanceReports() {
+        return maintenanceReports;
+    }
+
+    // Analytics
+    public double getTotalRevenue() {
+        double rev = 0.0;
+        for (Rental r : rentals) {
+            if ("COMPLETED".equalsIgnoreCase(r.getRentalStatus())) {
+                rev += r.getTotalCost();
+            }
+        }
+        return rev;
+    }
+
+    public double getTotalCo2Saved() {
+        double co2 = 0.0;
+        for (Rental r : rentals) {
+            if ("COMPLETED".equalsIgnoreCase(r.getRentalStatus())) {
+                co2 += r.getCo2SavedKg();
+            }
+        }
+        return co2;
     }
 }

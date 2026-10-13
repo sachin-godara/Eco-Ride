@@ -77,4 +77,42 @@ public class Rental implements Serializable {
 
     public String getUnlockPin() { return unlockPin; }
     public void setUnlockPin(String unlockPin) { this.unlockPin = unlockPin; }
+
+    // Live Active Ride Tracking
+    private int elapsedSeconds = 0;
+
+    public int getElapsedSeconds() { return elapsedSeconds; }
+    public void setElapsedSeconds(int elapsedSeconds) { this.elapsedSeconds = elapsedSeconds; }
+    public void tick() { this.elapsedSeconds += 1; }
+    public void tick(int seconds) { this.elapsedSeconds += seconds; }
+
+    public int calculateDurationMinutes() {
+        if (elapsedSeconds <= 0) return 0;
+        return Math.max(1, elapsedSeconds / 60);
+    }
+
+    public double calculateDistanceKm() {
+        return (elapsedSeconds / 3600.0) * 14.0; // 14 km/h average cycling speed
+    }
+
+    public double calculateCo2SavedKg() {
+        return calculateDistanceKm() * 0.21; // 0.21 kg CO2 avoided per km vs petrol car
+    }
+
+    public int calculateCalories() {
+        return (int) ((elapsedSeconds / 60.0) * 7.5); // 7.5 kcal per minute
+    }
+
+    public double calculateGrossFare(double hourlyRate) {
+        double fare = baseFare > 0 ? baseFare : 10.00; // Base fare covers first 15 mins
+        int totalMinutes = calculateDurationMinutes();
+        if (totalMinutes > 15) {
+            fare += (totalMinutes - 15) * (hourlyRate / 60.0);
+        }
+        return fare;
+    }
+
+    public int calculateEcoCredits() {
+        return (int) Math.round(calculateCo2SavedKg() / 0.5); // 1 Eco-Reward point per 0.5 kg CO2 (rounded)
+    }
 }

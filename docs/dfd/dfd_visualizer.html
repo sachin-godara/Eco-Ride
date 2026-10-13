@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoRide - Data Flow Diagram & USP Architecture Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0b0f19;
+            --bg-secondary: #111827;
+            --bg-card: #1e293b;
+            --bg-card-hover: #273549;
+            --accent-emerald: #10b981;
+            --accent-cyan: #06b6d4;
+            --accent-blue: #3b82f6;
+            --accent-amber: #f59e0b;
+            --accent-rose: #f43f5e;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border-color: #334155;
+            --border-highlight: #475569;
+            --font-main: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --shadow-glow: 0 0 25px rgba(16, 185, 129, 0.15);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-bottom: 60px;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: linear-gradient(180deg, rgba(17, 24, 39, 0.95) 0%, rgba(11, 15, 25, 0.8) 100%);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #10b981 0%, #06b6d4 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .brand-text h1 {
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #fff 40%, #94a3b8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-text p {
+            font-size: 0.82rem;
+            color: var(--accent-emerald);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-live {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: var(--accent-emerald);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-emerald);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: 9px 18px;
+            border-radius: 8px;
+            font-family: var(--font-main);
+            font-size: 0.88rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent-emerald);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            border-color: #10b981;
+            color: #ffffff;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 28px 24px;
+        }
+
+        .hero {
+            background: radial-gradient(circle at 50% 0%, rgba(16, 185, 129, 0.12) 0%, transparent 70%);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px 34px;
+            margin-bottom: 24px;
+        }
+
+        .hero h2 {
+            font-size: 1.85rem;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 1.02rem;
+            max-width: 850px;
+        }
+
+        .usp-pills {
+            display: flex;
+            gap: 12px;
+            margin-top: 18px;
+            flex-wrap: wrap;
+        }
+
+        .usp-pill {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.84rem;
+            font-weight: 600;
+        }
+
+        .usp-pill-alt {
+            background: rgba(6, 182, 212, 0.12);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            color: #38bdf8;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 28px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            color: var(--text-secondary);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px 10px 0 0;
+            font-family: var(--font-main);
+            font-size: 0.98rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.03);
+        }
+
+        .tab-btn.active {
+            color: var(--accent-emerald);
+            background: var(--bg-secondary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent-emerald);
+            border-radius: 3px 3px 0 0;
+            box-shadow: 0 0 10px var(--accent-emerald);
+        }
+
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .diagram-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 28px;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .diagram-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .diagram-title h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .diagram-title span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .diagram-viewport {
+            background: #090d16;
+            border-radius: 12px;
+            padding: 30px 20px;
+            min-height: 480px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow-x: auto;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .analysis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 20px;
+            margin-top: 24px;
+        }
+
+        .detail-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 22px;
+            transition: all 0.2s ease;
+        }
+
+        .detail-card.usp-card {
+            border-left: 4px solid var(--accent-emerald);
+        }
+
+        .detail-card h4 {
+            font-size: 1.08rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .detail-card p {
+            font-size: 0.92rem;
+            color: var(--text-secondary);
+            margin-bottom: 14px;
+        }
+
+        .data-badge-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .data-badge {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #cbd5e1;
+            padding: 4px 9px;
+            border-radius: 6px;
+            font-family: var(--font-mono);
+            font-size: 0.76rem;
+        }
+
+        .badge-in {
+            border-color: rgba(14, 165, 233, 0.4);
+            color: #38bdf8;
+            background: rgba(14, 165, 233, 0.1);
+        }
+
+        .badge-out {
+            border-color: rgba(16, 185, 129, 0.4);
+            color: #34d399;
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .badge-store {
+            border-color: rgba(168, 85, 247, 0.4);
+            color: #c084fc;
+            background: rgba(168, 85, 247, 0.1);
+        }
+
+        /* USP Document View */
+        .usp-doc-page {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 30px;
+        }
+
+        .usp-doc-page h3 {
+            font-size: 1.45rem;
+            font-weight: 800;
+            margin-top: 24px;
+            margin-bottom: 12px;
+            color: var(--accent-emerald);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .usp-doc-page h4 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-top: 18px;
+            margin-bottom: 8px;
+            color: #e2e8f0;
+        }
+
+        .usp-doc-page p {
+            font-size: 1.02rem;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+            text-align: justify;
+        }
+
+        .math-box {
+            background: #090d16;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-cyan);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin: 18px 0;
+            font-family: var(--font-mono);
+            font-size: 0.95rem;
+            color: #38bdf8;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            margin: 20px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.92rem;
+            text-align: left;
+        }
+
+        th {
+            background: #1e293b;
+            color: var(--text-primary);
+            font-weight: 600;
+            padding: 14px 18px;
+            border-bottom: 2px solid var(--border-color);
+            font-size: 0.88rem;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 14px 18px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+            color: var(--text-primary);
+        }
+
+        .code-cell {
+            font-family: var(--font-mono);
+            font-size: 0.82rem;
+            color: var(--accent-cyan);
+        }
+
+        .viva-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 22px;
+            margin-bottom: 16px;
+        }
+
+        .viva-q {
+            font-size: 1.06rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .viva-tag {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-emerald);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            margin-top: 3px;
+        }
+
+        .viva-a {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            padding-left: 36px;
+            border-left: 2px solid rgba(16, 185, 129, 0.3);
+            margin-left: 6px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand">
+            <div class="brand-icon">🚲</div>
+            <div class="brand-text">
+                <h1>EcoRide Architecture Portal</h1>
+                <p><span class="badge-live"></span> IEEE 830 DFD & USP Technical Models</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <button class="btn" onclick="window.print()">🖨️ Print / Save PDF</button>
+            <a href="../USP_Architecture_Context.md" class="btn btn-primary" target="_blank">📄 Open Full USP Markdown</a>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="hero">
+            <h2>System Analysis & Unique Selling Proposition (USP) Context</h2>
+            <p>
+                Comprehensive software engineering documentation prepared for the NSP Minor Project examination. Covers simple and decomposed DFD models, mathematical formulations, and operational workflow proofs.
+            </p>
+            <div class="usp-pills">
+                <div class="usp-pill">✨ USP #1: Dynamic Dock Rebalancing & Capacity Alerts</div>
+                <div class="usp-pill usp-pill-alt">🌱 USP #2: Eco-Credit Engine (0.21 kg CO₂/km Offset)</div>
+                <div class="usp-pill">⚡ Concurrency: EDT-Safe Live Trip HUD (1000ms Metering)</div>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('tab-level0', this)">
+                <span>🎯</span> Level 0 (Context Diagram)
+            </button>
+            <button class="tab-btn" onclick="switchTab('tab-level1', this)">
+                <span>🔍</span> Level 1 (Decomposition)
+            </button>
+            <button class="tab-btn" onclick="switchTab('tab-usp', this)">
+                <span>✨</span> 2-3 Pages USP Context
+            </button>
+            <button class="tab-btn" onclick="switchTab('tab-dictionary', this)">
+                <span>📚</span> Data Stores & Dictionary
+            </button>
+            <button class="tab-btn" onclick="switchTab('tab-viva', this)">
+                <span>🎓</span> Viva Voce Master Prep
+            </button>
+        </div>
+
+        <!-- TAB 1: LEVEL 0 (CONTEXT DIAGRAM) -->
+        <div id="tab-level0" class="tab-pane active">
+            <div class="diagram-card">
+                <div class="diagram-header">
+                    <div class="diagram-title">
+                        <h3>Level 0 DFD: Context-Level Architectural Model</h3>
+                        <span>Represents the system boundary as a single process 0.0 interacting with external entities.</span>
+                    </div>
+                </div>
+
+                <div class="diagram-viewport">
+                    <div class="mermaid">
+flowchart TD
+    classDef entity fill:#1e293b,stroke:#0ea5e9,stroke-width:2px,color:#f8fafc;
+    classDef process fill:#065f46,stroke:#10b981,stroke-width:3px,color:#ecfdf5,font-weight:bold;
+    classDef gateway fill:#3b0764,stroke:#a855f7,stroke-width:2px,color:#faf5ff;
+
+    E1["👤 Customer (Rider)"]:::entity
+    E2["🛠️ Station Operator / Technician"]:::entity
+    E3["⚙️ System Administrator"]:::entity
+    E4["💳 Payment Simulator / Gateway"]:::gateway
+
+    P0(("0.0<br/>Smart Bicycle Rental System<br/>(EcoRide Core)")):::process
+
+    E1 -->|1. Reg Info & Credentials| P0
+    E1 -->|2. Wallet Top-up Request| P0
+    E1 -->|3. Station / Bike Filter Query| P0
+    E1 -->|4. Bike Reservation Request| P0
+    E1 -->|5. Return Dock & Discount Choice| P0
+    E1 -->|6. Fault / Damage Report| P0
+
+    P0 -->|A. Auth Status & User Profile| E1
+    P0 -->|B. Station & Bike Availability + Battery %| E1
+    P0 -->|C. 6-Digit Cryptographic Unlock PIN| E1
+    P0 -->|D. Live Ride HUD (Duration, Fare, Distance)| E1
+    P0 -->|E. Itemized Invoice Receipt & Wallet Balance| E1
+    P0 -->|F. Eco-Credits Earned & CO2 Saved Summary| E1
+    P0 -->|G. Congestion Alert & Alt-Station Suggestion| E1
+
+    P0 -->|H. Dock Saturation Alerts (Starved / Congested)| E2
+    P0 -->|I. Open Maintenance Tickets Queue| E2
+    E2 -->|7. Rebalance Transfer Log| P0
+    E2 -->|8. Maintenance Resolution & Repair Cost| P0
+
+    E3 -->|9. Admin Credentials & Auth| P0
+    E3 -->|10. Fleet & Station CRUD Commands| P0
+    E3 -->|11. Tariff & Base Fare Config| P0
+    P0 -->|J. Fleet Distribution & Health Metrics| E3
+    P0 -->|K. Revenue & Campus Green Analytics| E3
+
+    P0 -->|L. Payment Deduction Request| E4
+    E4 -->|12. Transaction Auth Status & Ref ID| P0
+                    </div>
+                </div>
+            </div>
+
+            <div class="analysis-grid">
+                <div class="detail-card">
+                    <h4>👤 Customer (Rider) Terminator</h4>
+                    <p>Primary campus user who authenticates, browses docking stations, generates 6-digit OTP unlock tokens, monitors running ride HUD, and returns bikes.</p>
+                </div>
+                <div class="detail-card usp-card">
+                    <h4>🛠️ Station Operator Terminator (USP)</h4>
+                    <p>Receives automated station starvation alerts (&lt;15%) and congestion alerts (&ge;90%) to rebalance the fleet between campus docks.</p>
+                </div>
+                <div class="detail-card">
+                    <h4>⚙️ System Administrator Terminator</h4>
+                    <p>Oversees system-wide station and bike CRUD, sets base fares and per-minute tariffs, and reviews institutional environmental reports.</p>
+                </div>
+                <div class="detail-card">
+                    <h4>💳 Payment Simulator / Gateway</h4>
+                    <p>Simulates external banking communication for prepaid wallet recharges and final fare deductions.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: LEVEL 1 (DECOMPOSITION) -->
+        <div id="tab-level1" class="tab-pane">
+            <div class="diagram-card">
+                <div class="diagram-header">
+                    <div class="diagram-title">
+                        <h3>Level 1 DFD: Decomposed Functional System Overview</h3>
+                        <span>Exposes 9 sub-processes and 6 MySQL InnoDB data stores.</span>
+                    </div>
+                </div>
+
+                <div class="diagram-viewport">
+                    <div class="mermaid">
+flowchart TD
+    classDef entity fill:#0f172a,stroke:#38bdf8,stroke-width:2px,color:#f8fafc;
+    classDef process fill:#1e3a8a,stroke:#60a5fa,stroke-width:2px,color:#eff6ff;
+    classDef usp fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#ecfdf5,font-weight:bold;
+    classDef datastore fill:#312e81,stroke:#818cf8,stroke-width:2px,color:#e0e7ff;
+
+    E1["👤 Customer (Rider)"]:::entity
+    E2["🛠️ Station Operator"]:::entity
+    E3["⚙️ Administrator"]:::entity
+
+    D1[("D1: Users Store")]:::datastore
+    D2[("D2: Stations Store")]:::datastore
+    D3[("D3: Bicycles Store")]:::datastore
+    D4[("D4: Rentals Store")]:::datastore
+    D5[("D5: Payments Store")]:::datastore
+    D6[("D6: Maintenance Logs")]:::datastore
+
+    P1("1.0<br/>User Authentication &<br/>Wallet Management"):::process
+    P2("2.0<br/>Station & Fleet<br/>Catalog Discovery"):::process
+    P3("3.0<br/>Bicycle Reservation &<br/>OTP Unlock PIN"):::process
+    P4("4.0<br/>Live Trip Metering &<br/>HUD Concurrency"):::process
+    P5("5.0<br/>Dock Return & Dynamic<br/>Rebalancing (USP)"):::usp
+    P6("6.0<br/>Fare Calculation &<br/>Payment Settlement"):::process
+    P7("7.0<br/>Eco-Credit & Carbon<br/>Offset Engine (USP)"):::usp
+    P8("8.0<br/>Maintenance & Fault<br/>Lifecycle Management"):::process
+    P9("9.0<br/>Admin Fleet Control<br/>& Sustainability Analytics"):::process
+
+    E1 -->|Credentials / Top-up| P1
+    P1 -->|Auth Token & Wallet Balance| E1
+    P1 <-->|Read/Write User & Wallet| D1
+
+    E1 -->|Filter By Station & Type| P2
+    P2 -->|Station List & Battery %| E1
+    D2 -.->|Read Station Capacity| P2
+    D3 -.->|Read Bike Availability| P2
+
+    E1 -->|Select Bike & Checkout| P3
+    P3 -->|6-Digit Unlock PIN| E1
+    P3 -.->|Check Balance >= ₹50| D1
+    P3 -->|Set Bike Status=IN_USE| D3
+    P3 -->|Decrement Available Bikes| D2
+    P3 -->|Create Rental (ACTIVE)| D4
+
+    P3 -->|Trigger Active Trip Timer| P4
+    P4 -->|Real-time HUD Stream| E1
+    P4 <-->|Track Elapsed Time & Metering| D4
+
+    E1 -->|Dock at End Station| P5
+    P5 <-->|Check Dock Saturation| D2
+    P5 -->|Saturation Alerts (Starved/Congested)| E2
+    P5 -->|Alternative Station Guidance| E1
+
+    P5 -->|Proceed with Valid Return| P6
+    E1 -->|Redeem Eco-Credits Choice| P6
+    P6 <-->|Update Rental Completed| D4
+    P6 -->|Deduct Net Fare| D1
+    P6 -->|Log Payment Record| D5
+    P6 -->|Set Bike AVAILABLE & Docked| D3
+    P6 -->|Increment Available Bikes| D2
+    P6 -->|Itemized Receipt Invoice| E1
+
+    P6 -->|Send Distance & Duration| P7
+    P7 -->|Credit User Eco-Points| D1
+    P7 -->|Save CO2 & Eco-Credits| D4
+    P7 -->|Eco-Impact & Saved CO2| E1
+
+    E1 -->|Report Fault / Damage| P8
+    E2 -->|Repair Status & Costs| P8
+    P8 -->|Open Fault Tickets| E2
+    P8 -->|Set Bike=MAINTENANCE| D3
+    P8 <-->|Read/Write Tickets| D6
+
+    E3 -->|CRUD Stations, Bikes & Tariffs| P9
+    P9 <-->|Fleet & Config Sync| D2
+    P9 <-->|Fleet & Config Sync| D3
+    P9 <-->|Aggregate Financials & Green Impact| D4
+    P9 <-->|Aggregate Financials & Green Impact| D5
+    P9 -->|Fleet Dashboard & Revenue Reports| E3
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: 2-3 PAGES USP CONTEXT -->
+        <div id="tab-usp" class="tab-pane">
+            <div class="usp-doc-page">
+                <div style="text-align: center; border-bottom: 2px solid var(--border-color); padding-bottom: 20px; margin-bottom: 24px;">
+                    <h2 style="font-size: 1.8rem; color: #fff;">UNIQUE SELLING PROPOSITION (USP) CONTEXT</h2>
+                    <p style="text-align: center; color: var(--accent-emerald); font-weight: 600;">
+                        Smart Bicycle Rental System (EcoRide) — Formal Academic Evaluation Document
+                    </p>
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">Standard: IEEE 830-1998 | Length: ~3 Standard Academic Pages</span>
+                </div>
+
+                <h3>1. Executive Summary & Problem Context</h3>
+                <p>
+                    Standard academic bicycle rental systems suffer from severe functional stagnation. Most projects function purely as passive electronic registers (CRUD tables) that record checkouts and returns without operational intelligence. In real campus deployments, directional commuter traffic creates massive asymmetrical fleet distribution: residential hostel docks become completely starved of bicycles every morning, while academic blocks become severely congested, leaving arriving riders with no empty dock slots to return their bicycles.
+                </p>
+                <p>
+                    Furthermore, conventional platforms treat bike rental as a pure economic cost to the rider, providing zero positive reinforcement or gamification for choosing sustainable transit. To solve these systemic flaws, <strong>EcoRide</strong> introduces two mathematically formulated, software-enforced Unique Selling Propositions: (1) <strong>Dynamic Dock Rebalancing & Predictive Capacity Engine</strong>, and (2) <strong>Eco-Credit Loyalty Engine with Carbon Offset & Health Accounting</strong>.
+                </p>
+
+                <h3>2. USP #1: Dynamic Dock Rebalancing & Predictive Capacity Engine</h3>
+                <p>
+                    The rebalancing engine continuously computes the <strong>Dock Saturation Ratio (Sr)</strong> across all active stations in the network:
+                </p>
+                <div class="math-box">
+                    Dock Saturation Ratio: Sr = (Available Bicycles) / (Total Dock Capacity)
+                </div>
+                <p>
+                    The system monitors three discrete operational zones:
+                </p>
+                <ul style="margin-left: 24px; color: var(--text-secondary); margin-bottom: 16px;">
+                    <li><strong style="color: #f87171;">Starved Zone (Sr &lt; 0.15)</strong>: Station has less than 15% bicycles remaining. An automated dispatch ticket is routed to the Station Operator to transport bikes from surplus docks.</li>
+                    <li><strong style="color: #34d399;">Optimal Zone (0.15 &le; Sr &lt; 0.90)</strong>: Normal balanced operation.</li>
+                    <li><strong style="color: #facc15;">Congested Zone (Sr &ge; 0.90)</strong>: Docks are 90% or more full, triggering inbound rerouting alerts.</li>
+                </ul>
+                <h4>Intelligent Overflow Prevention Algorithm:</h4>
+                <p>
+                    When a rider attempts to dock at a station where available bikes equal total docks (100% capacity), the return transaction is safely intercepted. Rather than failing or allowing unauthorized dumping, the system computes the nearest alternative docking station:
+                </p>
+                <div class="math-box">
+                    Station_target = argmin [ Distance(Station_current, Station_vacant) ]
+                </div>
+                <p>
+                    The GUI immediately displays an <strong>Alternative Station Guidance Dialog</strong> showing walking distance in meters and pedestrian navigation cues, preventing dock saturation deadlocks.
+                </p>
+
+                <h3>3. USP #2: Eco-Credit Loyalty Engine & Carbon Offset Accounting</h3>
+                <p>
+                    EcoRide bridges environmental science with user economics by converting physical riding effort into verifiable emission savings and monetary discounts.
+                </p>
+                <h4>Mathematical Formulation:</h4>
+                <div class="math-box">
+                    1. Distance (km) = (Duration in Minutes / 60) * 14.0 km/h<br>
+                    2. CO2 Prevented (kg) = Distance (km) * 0.21 kg/km (Urban CPCB/IEA Benchmark)<br>
+                    3. Calories Burned (kcal) = Duration in Minutes * 7.5 kcal/min<br>
+                    4. Eco-Credits Earned = floor( CO2 Prevented / 0.5 kg )
+                </div>
+                <p>
+                    <strong>Economic Utility:</strong> Unlike cosmetic achievement badges, Eco-Credits hold direct purchasing value inside the platform (<strong>1 Eco-Credit = INR 1.00</strong>). When returning a bicycle, users can toggle "Redeem Eco-Credits", deducting credits from gross fares in real time. The entire settlement is committed within an atomic database transaction.
+                </p>
+
+                <h3>4. Supporting Architectural USP: EDT-Safe Concurrency & Persistence</h3>
+                <p>
+                    To guarantee zero GUI lag or application crashes during active rental sessions, the live ride HUD operates via an asynchronous <code>javax.swing.Timer</code> running every 1000 milliseconds. Metered fare and distance calculations execute cleanly on background threads and dispatch UI updates onto the Swing Event Dispatch Thread (EDT). If the program is unexpectedly closed, rental state is preserved in MySQL with start timestamps intact, guaranteeing zero data loss.
+                </p>
+
+                <h3>5. Comparative Evaluation</h3>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Feature Dimension</th>
+                                <th>Standard Academic Projects</th>
+                                <th>Commercial Systems (e.g. Yulu)</th>
+                                <th>EcoRide Smart System</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Dock Saturation Control</strong></td>
+                                <td>None (Static counter)</td>
+                                <td>Manual field sweep</td>
+                                <td><strong>Dynamic alerts (&lt;15% / &ge;90%)</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Full Dock Return Handling</strong></td>
+                                <td>Allows illegal docking</td>
+                                <td>Levies penalty fine</td>
+                                <td><strong>Auto-suggests nearest alternative dock</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Carbon Offset Model</strong></td>
+                                <td>Not implemented</td>
+                                <td>Static banner estimate</td>
+                                <td><strong>Dynamic 0.21 kg/km formula</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>Loyalty Discount Loop</strong></td>
+                                <td>None</td>
+                                <td>Paid subscriptions</td>
+                                <td><strong>1 Credit = ₹1.00 fare deduction</strong></td>
+                            </tr>
+                            <tr>
+                                <td><strong>GUI Concurrency</strong></td>
+                                <td>UI freezes during loops</td>
+                                <td>Mobile native</td>
+                                <td><strong>EDT-Safe Swing Timer HUD</strong></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: DATA STORES & DICTIONARY -->
+        <div id="tab-dictionary" class="tab-pane">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Store ID</th>
+                            <th>MySQL Table</th>
+                            <th>Primary Key</th>
+                            <th>Key Attributes</th>
+                            <th>Read by Processes</th>
+                            <th>Written by Processes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="data-badge badge-store">D1</span></td>
+                            <td class="code-cell">users</td>
+                            <td>user_id</td>
+                            <td>username, password_hash, wallet_balance, eco_credits, role</td>
+                            <td>1.0, 3.0, 6.0, 9.0</td>
+                            <td>1.0, 6.0, 7.0</td>
+                        </tr>
+                        <tr>
+                            <td><span class="data-badge badge-store">D2</span></td>
+                            <td class="code-cell">stations</td>
+                            <td>station_id</td>
+                            <td>station_name, total_docks, available_bikes, status</td>
+                            <td>2.0, 5.0, 9.0</td>
+                            <td>3.0, 5.0, 6.0, 9.0</td>
+                        </tr>
+                        <tr>
+                            <td><span class="data-badge badge-store">D3</span></td>
+                            <td class="code-cell">bicycles</td>
+                            <td>bike_id</td>
+                            <td>bike_code, model_name, bike_type, status, hourly_rate, battery_level</td>
+                            <td>2.0, 4.0, 9.0</td>
+                            <td>3.0, 6.0, 8.0, 9.0</td>
+                        </tr>
+                        <tr>
+                            <td><span class="data-badge badge-store">D4</span></td>
+                            <td class="code-cell">rentals</td>
+                            <td>rental_id</td>
+                            <td>user_id, bike_id, start_time, end_time, total_cost, co2_saved_kg</td>
+                            <td>4.0, 6.0, 7.0, 9.0</td>
+                            <td>3.0, 6.0, 7.0</td>
+                        </tr>
+                        <tr>
+                            <td><span class="data-badge badge-store">D5</span></td>
+                            <td class="code-cell">payments</td>
+                            <td>payment_id</td>
+                            <td>rental_id, user_id, amount, eco_discount, net_paid, payment_status</td>
+                            <td>9.0</td>
+                            <td>6.0</td>
+                        </tr>
+                        <tr>
+                            <td><span class="data-badge badge-store">D6</span></td>
+                            <td class="code-cell">maintenance_logs</td>
+                            <td>log_id</td>
+                            <td>bike_id, reported_by, issue_type, status, repair_cost</td>
+                            <td>8.0, 9.0</td>
+                            <td>8.0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- TAB 5: VIVA PREP -->
+        <div id="tab-viva" class="tab-pane">
+            <div class="viva-item">
+                <div class="viva-q">
+                    <span class="viva-tag">USP #1 DEFENSE</span>
+                    How does the system prevent station congestion and dock starvation?
+                </div>
+                <div class="viva-a">
+                    EcoRide continuously computes the Dock Saturation Ratio (Available Bikes / Total Docks). When a dock drops below 15% capacity, it automatically alerts operators to transport bikes from congested areas. If a rider tries to return a bike to a completely full station, the system blocks the transaction and automatically suggests the nearest alternative dock with walking distance and directions.
+                </div>
+            </div>
+
+            <div class="viva-item">
+                <div class="viva-q">
+                    <span class="viva-tag">USP #2 DEFENSE</span>
+                    What is the scientific basis for your carbon savings and Eco-Credits?
+                </div>
+                <div class="viva-a">
+                    We use the CPCB/IEA urban transport benchmark of 0.21 kg of CO₂ prevented per kilometer cycled compared to motorized transit. Distance is calculated using average cycling speed (14 km/h). Every 0.5 kg of CO₂ saved yields 1 Eco-Credit, which directly translates into a ₹1.00 fare discount on future rides.
+                </div>
+            </div>
+
+            <div class="viva-item">
+                <div class="viva-q">
+                    <span class="viva-tag">CONCURRENCY</span>
+                    How do you ensure the Java Swing desktop GUI does not freeze during active rides?
+                </div>
+                <div class="viva-a">
+                    We isolate ride metering onto an asynchronous <code>javax.swing.Timer</code> that fires every 1000 milliseconds. Calculations are processed off the main event loop and safely dispatched to the Event Dispatch Thread (EDT) to update the GUI cards without causing any window freezing.
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'dark',
+            themeVariables: {
+                darkMode: true,
+                background: '#090d16',
+                primaryColor: '#065f46',
+                primaryBorderColor: '#10b981',
+                primaryTextColor: '#f8fafc',
+                lineColor: '#38bdf8',
+                textColor: '#f8fafc',
+                fontSize: '13px',
+                fontFamily: 'Outfit, sans-serif'
+            }
+        });
+
+        function switchTab(tabId, btnElement) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            
+            document.getElementById(tabId).classList.add('active');
+            btnElement.classList.add('active');
+
+            setTimeout(() => {
+                mermaid.contentLoaded();
+            }, 50);
+        }
+    </script>
+</body>
+</html>

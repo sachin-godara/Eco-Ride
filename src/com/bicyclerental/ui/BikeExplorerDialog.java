@@ -45,28 +45,28 @@ public class BikeExplorerDialog extends JDialog {
 
         JLabel lblStation = new JLabel("Select Station:");
         lblStation.setFont(UITheme.BODY_BOLD);
-        lblStation.setForeground(UITheme.TEXT_LIGHT);
+        lblStation.setForeground(Color.BLACK);
         filterBar.add(lblStation);
 
         comboStation = new JComboBox<>();
         for (Station s : DataRepository.getInstance().getAllStations()) {
             comboStation.addItem(s);
         }
-        comboStation.setFont(UITheme.BODY_FONT);
+        comboStation.setFont(UITheme.BODY_BOLD);
         comboStation.setBackground(UITheme.BG_INPUT);
-        comboStation.setForeground(UITheme.TEXT_LIGHT);
+        comboStation.setForeground(Color.BLACK);
         comboStation.addActionListener(e -> loadBikes());
         filterBar.add(comboStation);
 
         JLabel lblType = new JLabel("Type Filter:");
         lblType.setFont(UITheme.BODY_BOLD);
-        lblType.setForeground(UITheme.TEXT_LIGHT);
+        lblType.setForeground(Color.BLACK);
         filterBar.add(lblType);
 
         comboType = new JComboBox<>(new String[]{"ALL", "STANDARD", "GEARED", "ELECTRIC"});
-        comboType.setFont(UITheme.BODY_FONT);
+        comboType.setFont(UITheme.BODY_BOLD);
         comboType.setBackground(UITheme.BG_INPUT);
-        comboType.setForeground(UITheme.TEXT_LIGHT);
+        comboType.setForeground(Color.BLACK);
         comboType.addActionListener(e -> loadBikes());
         filterBar.add(comboType);
 
@@ -82,26 +82,44 @@ public class BikeExplorerDialog extends JDialog {
         };
 
         bikeTable = new JTable(tableModel);
-        bikeTable.setFont(UITheme.BODY_FONT);
-        bikeTable.setRowHeight(32);
+        bikeTable.setFont(UITheme.BODY_BOLD);
+        bikeTable.setRowHeight(36);
         bikeTable.setBackground(UITheme.BG_CARD);
-        bikeTable.setForeground(UITheme.TEXT_LIGHT);
-        bikeTable.setSelectionBackground(UITheme.PRIMARY_DARK);
-        bikeTable.setSelectionForeground(Color.WHITE);
-        bikeTable.getTableHeader().setBackground(UITheme.BG_DARK);
-        bikeTable.getTableHeader().setForeground(UITheme.TEXT_MUTED);
+        bikeTable.setForeground(Color.BLACK);
+        bikeTable.setSelectionBackground(new Color(209, 250, 229));
+        bikeTable.setSelectionForeground(Color.BLACK);
+        bikeTable.getTableHeader().setBackground(new Color(241, 245, 249));
+        bikeTable.getTableHeader().setForeground(Color.BLACK);
         bikeTable.getTableHeader().setFont(UITheme.BODY_BOLD);
 
-        // Center align table contents
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        // Center align table contents with high-contrast text
+        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                setHorizontalAlignment(JLabel.CENTER);
+                if (!isSelected) {
+                    setForeground(Color.BLACK);
+                    setBackground(row % 2 == 0 ? Color.WHITE : new Color(248, 250, 252));
+                }
+                return c;
+            }
+        };
+
         for (int i = 0; i < bikeTable.getColumnCount(); i++) {
-            bikeTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+            if (i == 6) { // Status column
+                bikeTable.getColumnModel().getColumn(i).setCellRenderer(UITheme.createStatusCellRenderer());
+            } else {
+                bikeTable.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+            }
         }
 
         JScrollPane scrollPane = new JScrollPane(bikeTable);
-        scrollPane.getViewport().setBackground(UITheme.BG_DARK);
-        scrollPane.setBorder(new EmptyBorder(10, 16, 10, 16));
+        scrollPane.getViewport().setBackground(UITheme.BG_CARD);
+        scrollPane.setBorder(BorderFactory.createCompoundBorder(
+                new EmptyBorder(10, 16, 10, 16),
+                BorderFactory.createLineBorder(UITheme.BORDER_COLOR, 1, true)
+        ));
         add(scrollPane, BorderLayout.CENTER);
 
         // Bottom Action Bar
@@ -111,7 +129,7 @@ public class BikeExplorerDialog extends JDialog {
         JButton btnCancel = UITheme.createSecondaryButton("Close");
         btnCancel.addActionListener(e -> dispose());
 
-        JButton btnUnlock = UITheme.createPrimaryButton("Confirm Reservation & Get Unlock OTP");
+        JButton btnUnlock = UITheme.createPrimaryButton("Unlock & Start Rental");
         btnUnlock.addActionListener(e -> handleUnlock());
 
         footer.add(btnCancel);
@@ -144,7 +162,7 @@ public class BikeExplorerDialog extends JDialog {
     private void handleUnlock() {
         int selectedRow = bikeTable.getSelectedRow();
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, "Please select an available bicycle from the table first.", "Selection Required", JOptionPane.WARNING_MESSAGE);
+            UITheme.showStyledMessage(this, "Please select an available bicycle from the table first.", "Selection Required", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -155,12 +173,12 @@ public class BikeExplorerDialog extends JDialog {
         if (bike == null || station == null) return;
 
         if (!"AVAILABLE".equalsIgnoreCase(bike.getStatus())) {
-            JOptionPane.showMessageDialog(this, "Selected bicycle is currently " + bike.getStatus() + ". Please choose an available bicycle.", "Unavailable", JOptionPane.ERROR_MESSAGE);
+            UITheme.showStyledMessage(this, "Selected bicycle is currently " + bike.getStatus() + ". Please choose an available bicycle.", "Unavailable", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
         if (DataRepository.getInstance().getCurrentUser().getWalletBalance() < 50.00) {
-            JOptionPane.showMessageDialog(this, "Minimum wallet balance of INR 50.00 is required to initiate a ride. Please top up your wallet.", "Insufficient Funds", JOptionPane.WARNING_MESSAGE);
+            UITheme.showStyledMessage(this, "Minimum wallet balance of INR 50.00 is required to initiate a ride. Please top up your wallet.", "Insufficient Funds", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
@@ -168,23 +186,18 @@ public class BikeExplorerDialog extends JDialog {
         Rental rental = DataRepository.getInstance().startRental(bike, station);
 
         // Show unlock confirmation dialog
-        String message = "========================================\n" +
-                         "       BIKE RESERVATION CONFIRMED!\n" +
-                         "========================================\n\n" +
-                         "Bicycle Code: " + bike.getBikeCode() + " (" + bike.getModelName() + ")\n" +
-                         "Station: " + station.getStationName() + "\n" +
-                         "Base Fare: INR 10.00 (Includes first 15 mins)\n" +
-                         "Rate: INR " + bike.getHourlyRate() + "/hr\n\n" +
-                         "ONE-TIME SMART UNLOCK PIN: " + rental.getUnlockPin() + "\n\n" +
-                         "Enter this PIN on the dock keypad to release the bicycle.\n" +
-                         "Have a safe and green ride!";
+        String message = "BIKE UNLOCK CONFIRMED\n\n" +
+                         "Bicycle: " + bike.getBikeCode() + " (" + bike.getModelName() + ")\n" +
+                         "Pickup Station: " + station.getStationName() + "\n" +
+                         "Base Rate: INR 10.00 (Includes initial 15 mins)\n" +
+                         "Hourly Rate: INR " + String.format("%.2f", bike.getHourlyRate()) + "/hr\n\n" +
+                         "Unlock Passcode: " + rental.getUnlockPin() + "\n\n" +
+                         "Enter this PIN on the dock terminal to release the lock.\n" +
+                         "Enjoy your green ride!";
 
-        JOptionPane.showMessageDialog(this, message, "Unlock Passcode Generated", JOptionPane.INFORMATION_MESSAGE);
+        UITheme.showStyledMessage(this, message, "Unlock Passcode Generated", JOptionPane.INFORMATION_MESSAGE);
 
-        parentDashboard.updateDashboard();
         dispose();
-
-        // Launch Active Ride Frame
-        new ActiveRideFrame(parentDashboard, rental).setVisible(true);
+        parentDashboard.startActiveRide(rental);
     }
 }
